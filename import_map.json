@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "hono": "jsr:@hono/hono",
+    "hono/": "jsr:@hono/hono/"
+  }
+}

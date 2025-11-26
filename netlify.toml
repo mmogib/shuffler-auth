@@ -1,0 +1,12 @@
+[build]
+  command = "echo 'Edge Functions - no build needed'"
+  publish = "public"
+
+[[edge_functions]]
+  path = "/api/*"
+  function = "index"
+
+[dev]
+  framework = "#custom"
+  command = "npm run dev"
+  targetPort = 3000
