@@ -13,12 +13,12 @@ function handle(app: Hono) {
   }
 }
 
-// Config
+// App Config (renamed from 'config' to 'appConfig')
 const getEnv = (key: string): string => {
   return (Deno as any).env.get(key) || ''
 }
 
-const config = {
+const appConfig = {
   jwtSecret: getEnv('JWT_SECRET') || 'your-super-secret-jwt-key',
   apiEndpoint: getEnv('API_ENDPOINT') || 'https://mshahrani.website',
   jwtExpiresIn: 30 * 24 * 60 * 60,
@@ -58,7 +58,7 @@ async function generateToken(user: any, code: string): Promise<string> {
     name: user.name,
     code: code,
     iat: now,
-    exp: now + config.jwtExpiresIn,
+    exp: now + appConfig.jwtExpiresIn,
   }
   
   const header = { alg: 'HS256', typ: 'JWT' }
@@ -68,7 +68,7 @@ async function generateToken(user: any, code: string): Promise<string> {
   
   const signature = await hmacSha256(
     `${encodedHeader}.${encodedPayload}`,
-    config.jwtSecret
+    appConfig.jwtSecret
   )
   
   return `${encodedHeader}.${encodedPayload}.${signature}`
@@ -83,7 +83,7 @@ async function verifyToken(token: string): Promise<any | null> {
     
     const expectedSignature = await hmacSha256(
       `${encodedHeader}.${encodedPayload}`,
-      config.jwtSecret
+      appConfig.jwtSecret
     )
     
     if (signature !== expectedSignature) return null
@@ -128,7 +128,7 @@ app.post('/api/auth/verify', async (c) => {
       return c.json({ error: 'Access code is required' }, 400)
     }
 
-    const apiUrl = `${config.apiEndpoint}/api/shufflerusers/${encodeURIComponent(code)}.json`
+    const apiUrl = `${appConfig.apiEndpoint}/api/shufflerusers/${encodeURIComponent(code)}.json`
     console.log('Verifying code:', code)
 
     const response = await fetch(apiUrl, {
@@ -209,6 +209,7 @@ app.get('/api/auth/me', async (c) => {
 
 export default handle(app)
 
+// Edge function configuration (note: renamed to avoid conflict)
 export const config = {
   path: '/*'
 }
