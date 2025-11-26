@@ -1,18 +1,17 @@
-import { Hono } from 'jsr:@hono/hono'
-import { handle } from 'jsr:@hono/hono/netlify'
-import { cors } from 'jsr:@hono/hono/cors'
+import { Hono } from 'https://esm.sh/hono@4.6.14'
+import { cors } from 'https://esm.sh/hono@4.6.14/cors'
 
-// Inline the app here for Edge Functions
-// (can't import from src/ because of different module systems)
-
-const app = new Hono()
-
-// CORS middleware
-app.use('/*', cors({
-  origin: '*',
-  allowMethods: ['GET', 'POST', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
-}))
+// We need to manually implement handle for Netlify
+// since we can't use the JSR version
+function handle(app: Hono) {
+  return async (request: Request, context: any) => {
+    // Add Netlify context to the environment
+    const response = await app.fetch(request, {
+      context,
+    })
+    return response
+  }
+}
 
 // Config
 const getEnv = (key: string): string => {
@@ -100,6 +99,16 @@ async function verifyToken(token: string): Promise<any | null> {
     return null
   }
 }
+
+// Create app
+const app = new Hono()
+
+// CORS middleware
+app.use('/*', cors({
+  origin: '*',
+  allowMethods: ['GET', 'POST', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+}))
 
 // Routes
 app.get('/', (c) => {
@@ -201,5 +210,5 @@ app.get('/api/auth/me', async (c) => {
 export default handle(app)
 
 export const config = {
-  path: '/api/*'
+  path: '/*'
 }

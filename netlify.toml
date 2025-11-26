@@ -3,9 +3,10 @@
   publish = "public"
 
 [[edge_functions]]
-  path = "/api/*"
+  path = "/*"
   function = "index"
 
+  
 [dev]
   framework = "#custom"
   command = "npm run dev"
